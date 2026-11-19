@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
-import { moduleFolderProblems } from '@app/eslint-config';
+import { moduleFolderProblems } from '@agent-from-scratch/eslint-config';
 import { ESLint } from 'eslint';
 import { describe, expect, it } from 'vitest';
 
@@ -191,7 +191,7 @@ describe.skipIf(!existsSync(path.join(ROOT, 'apps/api/package.json')))(
       expect(
         await ruleIds(
           USE_CASE,
-          "import type { Task } from '@app/domain';\nexport const ids = (tasks: Task[]) => tasks.map(t => t.id);\n",
+          "import type { Task } from '@agent-from-scratch/domain';\nexport const ids = (tasks: Task[]) => tasks.map(t => t.id);\n",
         ),
       ).toEqual([]);
     });
@@ -210,7 +210,7 @@ describe.skipIf(!existsSync(path.join(ROOT, 'apps/api/package.json')))(
       [
         '도메인이 계약을',
         DOMAIN,
-        "import { ENDPOINTS } from '@app/contracts';\nexport const e = ENDPOINTS;\n",
+        "import { ENDPOINTS } from '@agent-from-scratch/contracts';\nexport const e = ENDPOINTS;\n",
       ],
     ])('%s import하면 막힌다', async (_, file, code) => {
       expect(await ruleIds(file, code)).toContain('boundaries/dependencies');

@@ -1,5 +1,5 @@
 {
-  "name": "ts-monorepo-template",
+  "name": "agent-from-scratch",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,16 +11,15 @@
     "format": "prettier --write \"**/*.{ts,mts,tsx,js,jsx,json,md,mjs,cjs,yml,yaml}\" --ignore-path .prettierignore --cache",
     "format:check": "prettier --check \"**/*.{ts,mts,tsx,js,jsx,json,md,mjs,cjs,yml,yaml}\" --ignore-path .prettierignore --cache",
     "prepare": "lefthook install",
-    "docs:index": "pnpm --filter @app/docs-index generate",
-    "init:project": "node scripts/init.ts",
+    "docs:index": "pnpm --filter @agent-from-scratch/docs-index generate",
+    "agent": "pnpm --filter @agent-from-scratch/agent start",
     "check-types:tooling": "tsc -p tsconfig.json",
     "lint:tooling": "eslint --no-error-on-unmatched-pattern eslint.config.mts scripts",
-    "test:scripts": "bash -c 'shopt -s nullglob; for t in .github/scripts/*.test.sh; do bash \"$t\" || exit 1; done'",
-    "gates": "pnpm --filter @app/upgrade-gates gates"
+    "test:scripts": "bash -c 'shopt -s nullglob; for t in .github/scripts/*.test.sh; do bash \"$t\" || exit 1; done'"
   },
   "devDependencies": {
-    "@app/eslint-config": "workspace:*",
-    "@app/tsconfig": "workspace:*",
+    "@agent-from-scratch/eslint-config": "workspace:*",
+    "@agent-from-scratch/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "eslint": "catalog:lint",
     "jiti": "catalog:lint",

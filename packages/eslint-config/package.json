@@ -1,5 +1,5 @@
 {
-  "name": "@app/eslint-config",
+  "name": "@agent-from-scratch/eslint-config",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -22,7 +22,7 @@
     "eslint": "catalog:lint"
   },
   "devDependencies": {
-    "@app/tsconfig": "workspace:*",
+    "@agent-from-scratch/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "eslint": "catalog:lint",
     "jiti": "catalog:lint",

@@ -1,5 +1,5 @@
 {
-  "name": "@app/docs-index",
+  "name": "@agent-from-scratch/docs-index",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -17,8 +17,8 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@app/eslint-config": "workspace:*",
-    "@app/tsconfig": "workspace:*",
+    "@agent-from-scratch/eslint-config": "workspace:*",
+    "@agent-from-scratch/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

@@ -1,5 +1,5 @@
 {
-  "name": "@app/domain",
+  "name": "@agent-from-scratch/domain",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -20,8 +20,8 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@app/eslint-config": "workspace:*",
-    "@app/tsconfig": "workspace:*",
+    "@agent-from-scratch/eslint-config": "workspace:*",
+    "@agent-from-scratch/tsconfig": "workspace:*",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

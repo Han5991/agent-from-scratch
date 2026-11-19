@@ -12,7 +12,7 @@
     "transit": {
       "dependsOn": ["^transit"]
     },
-    // 공통 설정(@app/eslint-config·tsconfig)은 워크스페이스 의존성이라
+    // 공통 설정(@agent-from-scratch/eslint-config·tsconfig)은 워크스페이스 의존성이라
     // 바뀌면 transit 해시를 타고 의존 패키지의 캐시가 무효화된다.
     "lint": {
       "dependsOn": ["transit"]

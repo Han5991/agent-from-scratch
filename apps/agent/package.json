@@ -1,0 +1,28 @@
+{
+  "name": "@agent-from-scratch/agent",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "손으로 짜는 코딩 에이전트 CLI: 모델 호출 루프 + 도구 + 승인 게이트.",
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/main/cli.ts",
+    "debug": "node --inspect-brk --env-file-if-exists=.env src/main/cli.ts",
+    "lint": "eslint .",
+    "check-types": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.9.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@agent-from-scratch/eslint-config": "workspace:*",
+    "@agent-from-scratch/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
