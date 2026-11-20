@@ -1,2 +1,14 @@
-// 0단계 자리표시자 — 도구 설정이 도는지 확인하는 용도다. 1단계에서 지우고 직접 쓴다.
-console.log('agent-from-scratch: 아직 아무것도 없다');
+import { runChat } from '#/interface/chat.ts';
+import { createTerminal } from '#/interface/terminal.ts';
+import { createAnthropicModel } from '#/infrastructure/anthropic-model.ts';
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic();
+
+const terminal = createTerminal(process.stdin, process.stdout);
+const model = createAnthropicModel(client, {
+  model: 'claude-haiku-5-5',
+  maxTokens: 16000,
+});
+
+await runChat(terminal, model);
