@@ -15,7 +15,9 @@ export const createTerminal = (input: Readable, output: Writable) => {
         if (line !== '') return line; // 비어 있지 않으면 돌려준다
       } // 비었으면 위로 돌아가 다시 묻는다
     },
-    print: (text: string) => output.write(text),
+    print: (text: string) => {
+      output.write(text);
+    },
     close: () => lr.close(),
   };
 };
