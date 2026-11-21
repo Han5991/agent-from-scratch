@@ -5,6 +5,7 @@ export const ask = (
   model: ModelPort,
   message: string,
   callback: Parameters<ModelPort['send']>[1],
+  signal?: AbortSignal,
 ): Promise<Anthropic.Message> => {
   return model.send(
     [
@@ -14,5 +15,6 @@ export const ask = (
       },
     ],
     callback,
+    signal,
   );
 };

@@ -38,17 +38,31 @@ describe('ask', () => {
       { type: 'text', text: '안녕', citations: null },
     ]);
   });
+
+  // Ctrl+C 고치기: ask는 취소 신호를 받아 모델에 그대로 넘긴다(ModelPort.send의 세 번째 매개변수, 선택값).
+  it('취소 신호를 받으면 모델에 그대로 넘긴다', async () => {
+    const model = fakeModel(['네']);
+    const controller = new AbortController();
+
+    await ask(model, '안녕?', () => {}, controller.signal);
+
+    expect(model.signals).toEqual([controller.signal]);
+  });
 });
 
-/** 정해 둔 조각을 순서대로 흘리고, 받은 대화를 기록하는 가짜 모델 */
-function fakeModel(
-  chunks: string[],
-): ModelPort & { received: Anthropic.MessageParam[][] } {
+/** 정해 둔 조각을 순서대로 흘리고, 받은 대화와 취소 신호를 기록하는 가짜 모델 */
+function fakeModel(chunks: string[]): ModelPort & {
+  received: Anthropic.MessageParam[][];
+  signals: (AbortSignal | undefined)[];
+} {
   const received: Anthropic.MessageParam[][] = [];
+  const signals: (AbortSignal | undefined)[] = [];
   return {
     received,
-    send(messages, onText) {
+    signals,
+    send(messages, onText, signal) {
       received.push(messages);
+      signals.push(signal);
       for (const chunk of chunks) onText(chunk);
       return Promise.resolve(finalMessage(chunks.join('')));
     },
