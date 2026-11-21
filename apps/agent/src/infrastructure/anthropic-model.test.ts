@@ -79,7 +79,67 @@ describe('createAnthropicModel', () => {
       createAnthropicModel(client, OPTIONS).send(QUESTION, () => {}),
     ).rejects.toBeInstanceOf(Anthropic.AuthenticationError);
   });
+
+  // Ctrl+C 고치기: send의 세 번째 인자(취소 신호)를 SDK 요청에 넘긴다 — stream(body, { signal }).
+  it('취소 신호를 받으면 끝나지 않은 답이라도 기다리지 않고 APIUserAbortError로 거부한다', async () => {
+    const { client } = fakeClient(init => endlessSse('안녕', init?.signal));
+    const controller = new AbortController();
+    const shown: string[] = [];
+
+    const sending = createAnthropicModel(client, OPTIONS).send(
+      QUESTION,
+      chunk => {
+        shown.push(chunk);
+        controller.abort(); // 첫 조각을 받자마자 Ctrl+C를 누른 셈
+      },
+      controller.signal,
+    );
+
+    await expect(sending).rejects.toBeInstanceOf(Anthropic.APIUserAbortError);
+    expect(shown).toEqual(['안녕']);
+  });
 });
+
+/**
+ * 조각 하나를 보낸 뒤 끝나지 않는 스트리밍 응답 — 서버가 아직 답을 쓰는 중인 상태.
+ * 진짜 fetch처럼, 요청의 signal이 취소되면 응답 본문도 끊는다.
+ */
+function endlessSse(
+  firstChunk: string,
+  signal: AbortSignal | null | undefined,
+): Response {
+  const events = [
+    EVENTS[0],
+    {
+      type: 'content_block_start',
+      index: 0,
+      content_block: { type: 'text', text: '' },
+    },
+    {
+      type: 'content_block_delta',
+      index: 0,
+      delta: { type: 'text_delta', text: firstChunk },
+    },
+  ];
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(
+        new TextEncoder().encode(
+          events
+            .map(e => `event: ${e?.type}\ndata: ${JSON.stringify(e)}\n\n`)
+            .join(''),
+        ),
+      );
+      // close()를 부르지 않는다 — 스트림이 끝나지 않는다
+      signal?.addEventListener('abort', () => {
+        controller.error(signal.reason);
+      });
+    },
+  });
+  return new Response(body, {
+    headers: { 'content-type': 'text/event-stream' },
+  });
+}
 
 /** 서버가 스트리밍으로 보내는 이벤트열: 빈 thinking 블록 하나, 그다음 text 블록 하나 */
 const EVENTS = [
@@ -141,7 +201,7 @@ function sse(events: { type: string }[]): Response {
 }
 
 /** 진짜 SDK 클라이언트 + 가짜 fetch. 보낸 요청을 기록하고, 정해 둔 응답을 돌려준다 */
-function fakeClient(respond: () => Response) {
+function fakeClient(respond: (init?: RequestInit) => Response) {
   const sent: { url: string; body: unknown }[] = [];
   const client = new Anthropic({
     apiKey: 'test-key',
@@ -151,7 +211,7 @@ function fakeClient(respond: () => Response) {
       const body: unknown =
         typeof init?.body === 'string' ? JSON.parse(init.body) : null;
       sent.push({ url, body });
-      return Promise.resolve(respond());
+      return Promise.resolve(respond(init));
     },
   });
   return { client, sent };

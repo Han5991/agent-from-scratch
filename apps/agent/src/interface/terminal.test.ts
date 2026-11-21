@@ -59,6 +59,61 @@ describe('createTerminal', () => {
   });
 });
 
+// Ctrl+C 고치기: 터미널이 Ctrl+C를 받으면
+// - onInterrupt(listener)로 걸어 둔 함수를 부른다 — runChat이 진행 중인 요청을 취소하는 데 쓴다.
+// - 그 뒤 question()은 쌓여 있던 줄(예: 붙여 넣은 여러 줄)을 버리고 바로 undefined를 돌려준다.
+// readline은 진짜 터미널일 때만 Ctrl+C(\x03)를 키로 해석한다. 그래서 여기서는 output에 isTTY를 붙여 터미널인 척한다.
+// 진짜 터미널에서는 Enter가 \r로 들어온다.
+describe('createTerminal — Ctrl+C', () => {
+  it('양성 대조 — 터미널인 척해도 Ctrl+C 전에는 평소처럼 한 줄씩 받는다', async () => {
+    const { input, terminal } = setupTty();
+
+    input.write('안녕?\r');
+
+    expect(await terminal.question()).toBe('안녕?');
+  });
+
+  it('Ctrl+C를 누르면 onInterrupt에 걸어 둔 함수를 부른다', async () => {
+    const { input, terminal } = setupTty();
+    let interrupts = 0;
+    terminal.onInterrupt(() => {
+      interrupts += 1;
+    });
+
+    input.write(CTRL_C);
+    await tick();
+
+    expect(interrupts).toBe(1);
+  });
+
+  it('Ctrl+C 뒤에는 쌓여 있던 줄을 버리고 undefined를 돌려준다', async () => {
+    const { input, terminal } = setupTty();
+
+    input.write('첫째\r둘째\r');
+    input.write(CTRL_C);
+    await tick();
+
+    expect(await terminal.question()).toBeUndefined();
+  });
+});
+
+const CTRL_C = '\x03';
+
+/** 쌓인 입력이 처리될 때까지 한 박자 기다린다 */
+const tick = () =>
+  new Promise<void>(resolve => {
+    setImmediate(resolve);
+  });
+
+/** 진짜 터미널인 척하는 가짜 스트림을 끼운 터미널 */
+function setupTty() {
+  const input = new PassThrough();
+  const output = Object.assign(new PassThrough(), { isTTY: true });
+  output.resume();
+  const terminal = createTerminal(input, output);
+  return { input, terminal };
+}
+
 /** 가짜 입출력 스트림을 끼운 터미널. written()은 지금까지 output에 쓰인 글 전체 */
 function setup() {
   const input = new PassThrough();
